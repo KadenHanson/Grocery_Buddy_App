@@ -19,6 +19,7 @@
     "preset": "jest-expo"
   },
   "dependencies": {
+    "exp": "^55.0.4",
     "expo": "^27.0.1",
     "jscodeshift": "^0.5.1",
     "prop-types": "^15.6.2",

@@ -251,7 +251,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 0,
         backgroundColor: 'transparent',
-        alignItems: 'flex-start',
+        alignItems: 'center',
         padding: 20
     },
     footer: {
