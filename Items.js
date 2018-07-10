@@ -3,19 +3,24 @@ import { View, StyleSheet, Text } from 'react-native';
 import { Checkbox, IconToggle } from 'react-native-material-ui';
 import Prompt from 'rn-prompt';
 import { FormatMoney } from './App';
+import * as Animatable from 'react-native-animatable';
 
 export class Items extends React.Component {
+    animatedTag = ref => this.view = ref;
+
     constructor(props) {
         super(props);
         this.handleCheck = this.handleCheck.bind(this);
         this.checkFormat = this.checkFormat.bind(this);
+        this.showEndAnimation = this.showEndAnimation.bind(this);
 
         this.state = {
             name: this.props.name,
             value: FormatMoney(0),
             checked: false,
             promptVisible: false,
-            index: this.props.index
+            index: this.props.index,
+            quantity: 1
         };
     }
 
@@ -38,6 +43,10 @@ export class Items extends React.Component {
         return true;
     }
 
+    showEndAnimation = () => {
+        this.view.bounceOutLeft(700).then(endState => (this.props.removeItem(this.state.index), this.props.subtractTotal(this.state.value)));
+    }
+
     handleCheck() {
         var isChecked = this.state.checked == true ? false : true;
 
@@ -47,47 +56,55 @@ export class Items extends React.Component {
 
     render() {
         return (
-            <View style={styles.row}>
-                <Prompt
-                    title="Please enter item amount"
-                    placeholder="0.00"
-                    visible={this.state.promptVisible}
-                    textInputProps={{keyboardType: 'decimal-pad', returnKeyType: 'done'}}
-                    onCancel={() => this.setState({
-                        promptVisible: false,
-                        checked: false
-                    })}
-                    onSubmit={(value) => this.checkFormat(value) ? (this.setState({
-                        promptVisible: false,
-                        value: FormatMoney(value)
-                    }), this.props.addToSubtotal(value)) : null}
-                />
-                <View style={{ width: '65%', justifyContent: 'center' }}>
-                    <Checkbox
-                        label={this.state.name}
-                        value={this.state.name}
-                        onCheck={this.handleCheck}
-                        checked={this.state.checked}
-                        disabled={this.state.checked}
-                    />
-                </View>
-                <View style={{ width: '25%', justifyContent: 'center' }}>
-                    <Text style={styles.textRight}>
-                        ${this.state.value}
-                    </Text>
-                </View>
-                <View style={{ width: '10%', justifyContent: 'center' }}>
-                    <Text style={styles.textRight}>
-                        <IconToggle
-                            name="delete"
-                            color="#F45B69"
-                            size={25}
-                            onPress={() => (this.props.removeItem(this.state.index), this.props.subtractTotal(this.state.value)) }
+            <Animatable.View animation="bounceInRight">
+                <Animatable.View ref={this.animatedTag}>
+                    <View style={styles.row}>
+                        <Prompt
+                            title="Please enter item amount"
+                            placeholder="0.00"
+                            visible={this.state.promptVisible}
+                            textInputProps={{ keyboardType: 'decimal-pad', returnKeyType: 'done' }}
+                            onCancel={() => this.setState({
+                                promptVisible: false,
+                                checked: false
+                            })}
+                            onSubmit={(value) => this.checkFormat(value) ? (this.setState({
+                                promptVisible: false,
+                                value: FormatMoney(value)
+                            }), this.props.addToSubtotal(value)) : null}
                         />
-                    </Text>
-                </View>
-                <View style={styles.underLine}></View>
-            </View>
+                        <View style={{ width: '65%', justifyContent: 'center' }}>
+                            <Checkbox
+                                label={this.state.name}
+                                value={this.state.name}
+                                onCheck={this.handleCheck}
+                                checked={this.state.checked}
+                                disabled={this.state.checked}
+                            />
+                        </View>
+                        <View style={{ width: '25%', justifyContent: 'center' }}>
+                            <Text style={styles.textRight}>
+                                ${this.state.value}
+                            </Text>
+                        </View>
+                        <View style={{ width: '10%', justifyContent: 'center' }}>
+                            <Text style={styles.textRight}>
+                                <IconToggle
+                                    name="delete"
+                                    color="#F45B69"
+                                    size={25}
+                                    onPress={() => this.showEndAnimation()}
+                                />
+                            </Text>
+                        </View>
+                        {
+                            !this.props.lastItem ? (
+                                <View style={styles.underLine}></View>
+                            ) : null
+                        }
+                    </View>
+                </Animatable.View>
+            </Animatable.View>
         );
     }
 }

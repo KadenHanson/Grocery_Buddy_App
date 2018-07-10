@@ -16,7 +16,9 @@ export default class App extends React.Component {
     constructor(props) {
         super(props);
         this.addItemPress = this.addItemPress.bind(this);
+        this.addMultipleItemsPress = this.addMultipleItemsPress.bind(this);
         this.addItem = this.addItem.bind(this);
+        this.addMultipleItems = this.addMultipleItems.bind(this);
         this.removeItem = this.removeItem.bind(this);
         this.addToSubtotal = this.addToSubtotal.bind(this);
         this.subtractTotal = this.subtractTotal.bind(this);
@@ -29,6 +31,7 @@ export default class App extends React.Component {
             itemCount: 0,
             totalAmount: 0,
             promptVisible: false,
+            listPromptVisible: false,
             currentKey: 0,
             itemList: []
         };
@@ -66,11 +69,38 @@ export default class App extends React.Component {
         this.setState({ promptVisible: true });
     }
 
+    addMultipleItemsPress() {
+        this.setState({ listPromptVisible: true });
+    }
+
     addItem(value) {
         var list = this.state.itemList;
         var currentKey = this.state.currentKey + 1;
 
-        list.push({ id: currentKey, name: value });
+        var itemName = value.replace(/\w\S*/g, function(txt){
+            return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+        });
+
+        list.push({ id: currentKey, name: itemName });
+
+        this.setState({ itemList: list, itemCount: list.length, currentKey: currentKey });
+    }
+
+    addMultipleItems(items) {
+        var list = this.state.itemList;
+        var currentKey = this.state.currentKey + 1;
+
+        var itemList = items.split(',');
+
+        var _itemList = itemList.map((item) => {
+            currentKey++;
+            var _itemName = item.charAt(0).replace(' ', '') + item.slice(1);
+            var itemName = _itemName.replace(/\w\S*/g, function(txt){
+                return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+            });
+
+            list.push({ id: currentKey, name: itemName });
+        });
 
         this.setState({ itemList: list, itemCount: list.length, currentKey: currentKey });
     }
@@ -79,7 +109,7 @@ export default class App extends React.Component {
         var list = this.state.itemList;
         var listItemToRemove;
 
-        list.some(function(item) {
+        list.some(function (item) {
             if (item.id == indexToRemove) {
                 listItemToRemove = list.indexOf(item);
             }
@@ -117,9 +147,19 @@ export default class App extends React.Component {
                         promptVisible: false
                     }), this.addItem(value))}
                 />
+                <Prompt
+                    title="Please enter a list of items, separated by a comma"
+                    visible={this.state.listPromptVisible}
+                    onCancel={() => this.setState({
+                        listPromptVisible: false
+                    })}
+                    onSubmit={(value) => (this.setState({
+                        listPromptVisible: false
+                    }), this.addMultipleItems(value))}
+                />
                 {
                     this.state.fontLoaded ? (
-                        <View style={{ flex: 1, justifyContent: 'center' }}>
+                        <View style={{ flex: 1, backgroundColor: '#eaeaea' }}>
                             <View style={styles.statusBar} />
                             <StatusBar barStyle="light-content" />
                             <Toolbar
@@ -128,50 +168,65 @@ export default class App extends React.Component {
                                 onRightElementPress={(label) => { console.log(label) }}
                                 style={{ container: { backgroundColor: '#456990' } }}
                             />
-                            <ScrollView contentContainerStyle={styles.container}>
-                                <View style={styles.addContainer}>
-                                    <TouchableOpacity onPress={this.addItemPress} style={styles.addTouch}>
-                                        <View style={{ marginRight: 5 }}>
-                                            <Text>Add Item</Text>
-                                        </View>
-                                        <View>
-                                            <Icon
-                                                name="add-circle"
-                                                color="#89C440"
-                                                size={35}
-                                            />
-                                        </View>
-                                    </TouchableOpacity>
-                                </View>
-                                <Card
-                                    style={{
-                                        container: {
-                                            overflow: 'visible',
-                                            shadowOpacity: 0.10,
-                                            shadowRadius: 6,
-                                            shadowOffset: { height: 5, width: 0 },
-                                            shadowColor: '#000',
-                                            width: '100%',
-                                            minHeight: '80%',
-                                            alignItems: 'center',
-                                            padding: 10
+                            <View style={{ flex: 1, justifyContent: 'center' }}>
+                                <ScrollView contentContainerStyle={styles.container}>
+                                    <View style={styles.addContainer}>
+                                        <TouchableOpacity onPress={this.addItemPress} style={styles.addTouch}>
+                                            <View style={{ marginRight: 5 }}>
+                                                <Text>Add Item</Text>
+                                            </View>
+                                            <View style={{ marginRight: 10 }}>
+                                                <Icon
+                                                    name="add-circle"
+                                                    color="#89C440"
+                                                    size={35}
+                                                />
+                                            </View>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity onPress={this.addMultipleItemsPress} style={styles.addTouch}>
+                                            <View style={{ marginRight: 5 }}>
+                                                <Text>Add Item List</Text>
+                                            </View>
+                                            <View>
+                                                <Icon
+                                                    name="add-circle"
+                                                    color="#89C440"
+                                                    size={35}
+                                                />
+                                            </View>
+                                        </TouchableOpacity>
+                                    </View>
+                                    <Card
+                                        style={{
+                                            container: {
+                                                overflow: 'visible',
+                                                shadowOpacity: 0.10,
+                                                shadowRadius: 6,
+                                                shadowOffset: { height: 5, width: 0 },
+                                                shadowColor: '#000',
+                                                width: '100%',
+                                                minHeight: '80%',
+                                                alignItems: 'center',
+                                                padding: 10
+                                            }
+                                        }}
+                                    >
+                                        {
+                                            itemListArr = this.state.itemList.map(itemInfo => (
+                                                <Items
+                                                    name={itemInfo.name}
+                                                    key={itemInfo.id}
+                                                    index={itemInfo.id}
+                                                    removeItem={this.removeItem}
+                                                    addToSubtotal={this.addToSubtotal}
+                                                    subtractTotal={this.subtractTotal}
+                                                    lastItem={this.state.itemList.indexOf(itemInfo) == (this.state.itemList.length - 1) ? true : false}
+                                                />
+                                            ))
                                         }
-                                    }}
-                                >
-                                    {
-                                        itemListArr = this.state.itemList.map(itemInfo => (
-                                            <Items
-                                                name={itemInfo.name}
-                                                key={itemInfo.id}
-                                                index={itemInfo.id}
-                                                removeItem={this.removeItem}
-                                                addToSubtotal={this.addToSubtotal}
-                                                subtractTotal={this.subtractTotal}
-                                            />
-                                        ))
-                                    }
-                                </Card>
-                            </ScrollView>
+                                    </Card>
+                                </ScrollView>
+                            </View>
                             <View style={styles.footer}>
                                 <View style={styles.footerParts}>
                                     <Text style={{ color: 'white', textAlign: 'left' }}>Items: {this.state.itemCount}</Text>
@@ -194,10 +249,9 @@ const styles = StyleSheet.create({
         backgroundColor: '#3F6184'
     },
     container: {
-        flex: 1,
-        backgroundColor: '#eaeaea',
-        alignItems: 'center',
-        justifyContent: 'center',
+        flex: 0,
+        backgroundColor: 'transparent',
+        alignItems: 'flex-start',
         padding: 20
     },
     footer: {
