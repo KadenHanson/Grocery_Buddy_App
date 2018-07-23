@@ -6,6 +6,7 @@ import { FormatMoney } from './App';
 import * as Animatable from 'react-native-animatable';
 
 export class Items extends React.Component {
+    // Reference to animation tag that will allow the animation of the item before being deleted
     animatedTag = ref => this.view = ref;
 
     constructor(props) {
@@ -24,6 +25,7 @@ export class Items extends React.Component {
         };
     }
 
+    // Validates the format of a value when passed in from the item price prompt and ensures that it's not 0 or empty
     checkFormat(value) {
         var format = /(?=.*?\d)^\$?(([1-9]\d{0,2}(,\d{3})*)|\d+)?(\.\d{1,2})?$/;
 
@@ -43,10 +45,12 @@ export class Items extends React.Component {
         return true;
     }
 
+    // Shows the animation of the item leaving before it is deleted, then deletes the item
     showEndAnimation = () => {
         this.view.bounceOutLeft(700).then(endState => (this.props.removeItem(this.state.index), this.props.subtractTotal(this.state.value)));
     }
 
+    // Checks the checkbox for the item and starts the prompt to fill in the price of the item
     handleCheck() {
         var isChecked = this.state.checked == true ? false : true;
 
@@ -59,6 +63,7 @@ export class Items extends React.Component {
             <Animatable.View animation="bounceInRight">
                 <Animatable.View ref={this.animatedTag}>
                     <View style={styles.row}>
+                        {/* This is the prompt that allows you to put in the price of the item */}
                         <Prompt
                             title="Please enter item amount"
                             placeholder="0.00"
@@ -89,6 +94,7 @@ export class Items extends React.Component {
                         </View>
                         <View style={{ width: '10%', justifyContent: 'center' }}>
                             <Text style={styles.textRight}>
+                                {/* This button fires the animation that shows the item leaving and deletes the item */}
                                 <IconToggle
                                     name="delete"
                                     color="#F45B69"
@@ -98,6 +104,7 @@ export class Items extends React.Component {
                             </Text>
                         </View>
                         {
+                            // This ternary basically just shows an underline on an item or not based on if it's the last item ie.(If it's the last item don't show the line)
                             !this.props.lastItem ? (
                                 <View style={styles.underLine}></View>
                             ) : null
@@ -109,6 +116,7 @@ export class Items extends React.Component {
     }
 }
 
+// Styles for the item
 const styles = StyleSheet.create({
     row: {
         width: '100%',
