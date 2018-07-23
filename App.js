@@ -4,6 +4,7 @@ import { StyleSheet, Text, View, ScrollView, StatusBar, TouchableOpacity } from 
 import { Card, Toolbar, Icon } from 'react-native-material-ui';
 import Prompt from 'rn-prompt';
 import { Items } from './Items';
+import AddItemBtn from './AddItemBtn';
 
 // Formats a number value to the expected format ie.($2 should display as $2.00, and $10.32523 should display as $10.32)
 export function FormatMoney(value) {
@@ -187,30 +188,8 @@ export default class App extends React.Component {
                             <View style={{ flex: 1, justifyContent: 'center' }}>
                                 <ScrollView contentContainerStyle={styles.container}>
                                     <View style={styles.addContainer}>
-                                        <TouchableOpacity onPress={this.addItemPress} style={styles.addTouch}>
-                                            <View style={{ marginRight: 5 }}>
-                                                <Text>Add Item</Text>
-                                            </View>
-                                            <View style={{ marginRight: 10 }}>
-                                                <Icon
-                                                    name="add-circle"
-                                                    color="#89C440"
-                                                    size={35}
-                                                />
-                                            </View>
-                                        </TouchableOpacity>
-                                        <TouchableOpacity onPress={this.addMultipleItemsPress} style={styles.addTouch}>
-                                            <View style={{ marginRight: 5 }}>
-                                                <Text>Add Item List</Text>
-                                            </View>
-                                            <View>
-                                                <Icon
-                                                    name="add-circle"
-                                                    color="#89C440"
-                                                    size={35}
-                                                />
-                                            </View>
-                                        </TouchableOpacity>
+                                        <AddItemBtn buttonText="Add Item" onPressMethod={this.addItemPress} />
+                                        <AddItemBtn buttonText="Add Item List" onPressMethod={this.addMultipleItemsPress} />
                                     </View>
                                     <Card style={{ container: styles.card }}>
                                         {
@@ -281,13 +260,6 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-end',
         flexWrap: 'wrap',
         width: '100%'
-    },
-    addTouch: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'flex-end',
-        width: 'auto',
-        flexWrap: 'wrap'
     },
     card: {
         overflow: 'visible',
